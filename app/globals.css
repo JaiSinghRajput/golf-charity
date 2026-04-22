@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #faf8f4;
+  --ink: #171412;
+  --muted: #6c645f;
+  --panel: #ffffff;
+  --brand: #0f766e;
+  --brand-strong: #115e59;
+  --accent: #ea580c;
+}
+
+@theme inline {
+  --color-background: var(--canvas);
+  --color-foreground: var(--ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+.container-shell {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 72rem;
+  padding: 1.25rem;
+}
+
+.card {
+  border: 1px solid color-mix(in srgb, #000 8%, #fff 92%);
+  background: var(--panel);
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 40px -28px rgba(18, 22, 33, 0.42);
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.62rem 1rem;
+  transition: background 140ms ease;
+}
+
+.btn-primary:hover {
+  background: var(--brand-strong);
+}
+
+.btn-secondary {
+  border: 1px solid #d7d2cb;
+  background: #fff;
+  color: #171412;
+  border-radius: 999px;
+  padding: 0.62rem 1rem;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid #d8d2ca;
+  border-radius: 0.8rem;
+  padding: 0.64rem 0.8rem;
+  background: #fff;
+}
+
+.field:focus {
+  outline: 2px solid color-mix(in srgb, var(--brand) 50%, #fff 50%);
+  outline-offset: 1px;
+}
+
+.eyebrow {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
