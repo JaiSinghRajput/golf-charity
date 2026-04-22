@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
+type CharityRow = Awaited<ReturnType<typeof prisma.charity.findMany>>[number];
+
 export default async function SignupPage() {
-  const charities = await prisma.charity.findMany({
+  const charities: CharityRow[] = await prisma.charity.findMany({
     orderBy: { name: "asc" }
   });
 
