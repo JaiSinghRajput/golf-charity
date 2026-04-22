@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Charity } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export default async function CharitiesPage() {
-  const charities = await prisma.charity.findMany({
+  const charities: Charity[] = await prisma.charity.findMany({
     orderBy: [{ featured: "desc" }, { name: "asc" }]
   });
 
