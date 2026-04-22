@@ -45,7 +45,13 @@ export default async function AdminPage() {
     })
   ]);
 
-  const totalPool = pools.reduce((sum, item) => sum + item.totalPoolCents, 0);
+  const typedUsers: Awaited<ReturnType<typeof prisma.user.findMany>> = users;
+  const typedCharities: Awaited<ReturnType<typeof prisma.charity.findMany>> = charities;
+  const typedDraws: Awaited<ReturnType<typeof prisma.draw.findMany>> = draws;
+  const typedWinners: Awaited<ReturnType<typeof prisma.drawWinner.findMany>> = winners;
+  const typedPools: Awaited<ReturnType<typeof prisma.monthlyPool.findMany>> = pools;
+
+  const totalPool = typedPools.reduce((sum, item) => sum + item.totalPoolCents, 0);
 
   return (
     <section className="container-shell space-y-8 py-10">
@@ -84,7 +90,7 @@ export default async function AdminPage() {
           </form>
 
           <div className="mt-5 space-y-3">
-            {draws.map((draw) => (
+            {typedDraws.map((draw) => (
               <div key={draw.id} className="rounded-xl border border-neutral-200 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-medium">
@@ -125,7 +131,7 @@ export default async function AdminPage() {
           </form>
 
           <ul className="mt-5 space-y-2 text-sm text-neutral-700">
-            {charities.map((charity) => (
+            {typedCharities.map((charity) => (
               <li key={charity.id} className="rounded-lg bg-neutral-50 px-3 py-2">
                 {charity.name}
               </li>
@@ -137,8 +143,8 @@ export default async function AdminPage() {
       <article className="card p-6">
         <h2 className="text-xl font-semibold">Winners verification and payouts</h2>
         <div className="mt-4 space-y-3">
-          {winners.length === 0 && <p className="text-sm text-neutral-600">No winners found.</p>}
-          {winners.map((winner) => (
+          {typedWinners.length === 0 && <p className="text-sm text-neutral-600">No winners found.</p>}
+          {typedWinners.map((winner) => (
             <div key={winner.id} className="rounded-xl border border-neutral-200 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium">
@@ -186,7 +192,7 @@ export default async function AdminPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((account) => (
+              {typedUsers.map((account) => (
                 <tr key={account.id} className="border-t border-neutral-200">
                   <td className="px-3 py-2">{account.name}</td>
                   <td className="px-3 py-2">{account.email}</td>
