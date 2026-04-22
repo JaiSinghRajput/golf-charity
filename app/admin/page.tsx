@@ -60,7 +60,7 @@ export default async function AdminPage() {
   const typedWinners: WinnerRow[] = winners;
   const typedPools: Awaited<ReturnType<typeof prisma.monthlyPool.findMany>> = pools;
 
-  const totalPool = typedPools.reduce((sum, item) => sum + item.totalPoolCents, 0);
+  const totalPool = typedPools.reduce((sum: number, item: { totalPoolCents: number }) => sum + item.totalPoolCents, 0);
 
   return (
     <section className="container-shell space-y-8 py-10">
