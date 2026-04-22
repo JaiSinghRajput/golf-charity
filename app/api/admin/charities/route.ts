@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,7 +6,7 @@ import { charitySchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const user = await currentUser();
-  if (!user || user.role !== UserRole.ADMIN) {
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -53,7 +52,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const user = await currentUser();
-  if (!user || user.role !== UserRole.ADMIN) {
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

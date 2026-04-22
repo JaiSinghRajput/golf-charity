@@ -1,5 +1,7 @@
-import { PlanType, DrawLogic } from "@prisma/client";
 import { z } from "zod";
+
+const DRAW_LOGIC_VALUES = ["RANDOM", "WEIGHTED"] as const;
+const PLAN_TYPE_VALUES = ["MONTHLY", "YEARLY"] as const;
 
 export const signupSchema = z.object({
   name: z.string().min(2).max(120),
@@ -32,11 +34,11 @@ export const charitySchema = z.object({
 export const drawSchema = z.object({
   month: z.coerce.number().int().min(1).max(12),
   year: z.coerce.number().int().min(2024),
-  logic: z.nativeEnum(DrawLogic)
+  logic: z.enum(DRAW_LOGIC_VALUES)
 });
 
 export const subscriptionSchema = z.object({
-  plan: z.nativeEnum(PlanType)
+  plan: z.enum(PLAN_TYPE_VALUES)
 });
 
 export const verifyWinnerSchema = z.object({

@@ -1,6 +1,25 @@
-import { DrawLogic, DrawStatus, PayoutStatus, VerificationStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { monthlyPoolBreakdown } from "@/lib/subscription";
+
+const DRAW_LOGIC = {
+  RANDOM: "RANDOM",
+  WEIGHTED: "WEIGHTED"
+} as const;
+
+const DRAW_STATUS = {
+  SIMULATED: "SIMULATED",
+  PUBLISHED: "PUBLISHED"
+} as const;
+
+const PAYOUT_STATUS = {
+  PENDING: "PENDING"
+} as const;
+
+const VERIFICATION_STATUS = {
+  PENDING: "PENDING"
+} as const;
+
+type DrawLogic = (typeof DRAW_LOGIC)[keyof typeof DRAW_LOGIC];
 
 type DrawNumberSet = [number, number, number, number, number];
 
@@ -51,14 +70,14 @@ export const createOrSimulateDraw = async (
   logic: DrawLogic
 ) => {
   const simulationNumbers =
-    logic === DrawLogic.WEIGHTED ? await generateWeightedNumbers() : generateRandomNumbers();
+    logic === DRAW_LOGIC.WEIGHTED ? await generateWeightedNumbers() : generateRandomNumbers();
 
   return prisma.draw.upsert({
     where: { month_year: { month, year } },
     update: {
       logic,
       simulationNumbers,
-      status: DrawStatus.SIMULATED
+      status: DRAW_STATUS.SIMULATED
     },
     create: {
       month,
@@ -66,7 +85,7 @@ export const createOrSimulateDraw = async (
       logic,
       simulationNumbers,
       numbers: [],
-      status: DrawStatus.SIMULATED
+      status: DRAW_STATUS.SIMULATED
     }
   });
 };
@@ -183,8 +202,8 @@ export const publishDraw = async (drawId: string) => {
         userId: winner.userId,
         matchCount: winner.matchCount,
         amountCents: winner.amountCents,
-        payoutStatus: PayoutStatus.PENDING,
-        verificationStatus: VerificationStatus.PENDING
+        payoutStatus: PAYOUT_STATUS.PENDING,
+        verificationStatus: VERIFICATION_STATUS.PENDING
       }))
     });
   } else {
@@ -199,7 +218,7 @@ export const publishDraw = async (drawId: string) => {
   return prisma.draw.update({
     where: { id: drawId },
     data: {
-      status: DrawStatus.PUBLISHED,
+      status: DRAW_STATUS.PUBLISHED,
       numbers,
       publishedAt: new Date()
     }

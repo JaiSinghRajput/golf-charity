@@ -1,9 +1,17 @@
-import { PlanType, SubscriptionStatus } from "@prisma/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+
+type PlanType = "MONTHLY" | "YEARLY";
+
+const SUBSCRIPTION_STATUS = {
+  ACTIVE: "ACTIVE",
+  CANCELED: "CANCELED",
+  PAST_DUE: "PAST_DUE",
+  INACTIVE: "INACTIVE"
+} as const;
 
 const stripe = env.STRIPE_SECRET_KEY
   ? new Stripe(env.STRIPE_SECRET_KEY, { apiVersion: "2026-03-25.dahlia" })
@@ -31,18 +39,18 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const userId = session.metadata?.userId;
-    const plan = (session.metadata?.plan as PlanType | undefined) ?? PlanType.MONTHLY;
+    const plan = (session.metadata?.plan as PlanType | undefined) ?? "MONTHLY";
 
     if (userId) {
       const subscriptionId = session.subscription as string;
-      const amountCents = plan === PlanType.MONTHLY ? 1500 : 15000;
+      const amountCents = plan === "MONTHLY" ? 1500 : 15000;
       await prisma.subscription.updateMany({
-        where: { userId, status: SubscriptionStatus.INACTIVE },
+        where: { userId, status: SUBSCRIPTION_STATUS.INACTIVE },
         data: {
-          status: SubscriptionStatus.ACTIVE,
+          status: SUBSCRIPTION_STATUS.ACTIVE,
           stripeSubscriptionId: subscriptionId,
           currentPeriodEnd:
-            plan === PlanType.MONTHLY
+            plan === "MONTHLY"
               ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
               : new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
         }
@@ -72,10 +80,10 @@ export async function POST(request: Request) {
       data: {
         status:
           event.type === "customer.subscription.deleted"
-            ? SubscriptionStatus.CANCELED
+            ? SUBSCRIPTION_STATUS.CANCELED
             : subscription.status === "active"
-            ? SubscriptionStatus.ACTIVE
-            : SubscriptionStatus.PAST_DUE,
+            ? SUBSCRIPTION_STATUS.ACTIVE
+            : SUBSCRIPTION_STATUS.PAST_DUE,
         currentPeriodEnd: subscription.current_period_end
           ? new Date(subscription.current_period_end * 1000)
           : null,

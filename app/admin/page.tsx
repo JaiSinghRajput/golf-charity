@@ -1,12 +1,21 @@
-import { UserRole } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { currency, dateLabel } from "@/lib/utils";
 
+type WinnerRow = Awaited<ReturnType<typeof prisma.drawWinner.findMany>>[number] & {
+  user: { email: string };
+  draw: { month: number; year: number };
+};
+
+type UserRow = Awaited<ReturnType<typeof prisma.user.findMany>>[number] & {
+  selectedCharity: { name: string } | null;
+  subscriptions: { status: string }[];
+};
+
 export default async function AdminPage() {
   const user = await currentUser();
-  if (!user || user.role !== UserRole.ADMIN) {
+  if (!user || user.role !== "ADMIN") {
     redirect("/");
   }
 
@@ -45,10 +54,10 @@ export default async function AdminPage() {
     })
   ]);
 
-  const typedUsers: Awaited<ReturnType<typeof prisma.user.findMany>> = users;
+  const typedUsers: UserRow[] = users;
   const typedCharities: Awaited<ReturnType<typeof prisma.charity.findMany>> = charities;
   const typedDraws: Awaited<ReturnType<typeof prisma.draw.findMany>> = draws;
-  const typedWinners: Awaited<ReturnType<typeof prisma.drawWinner.findMany>> = winners;
+  const typedWinners: WinnerRow[] = winners;
   const typedPools: Awaited<ReturnType<typeof prisma.monthlyPool.findMany>> = pools;
 
   const totalPool = typedPools.reduce((sum, item) => sum + item.totalPoolCents, 0);

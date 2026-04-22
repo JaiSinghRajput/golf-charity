@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { createOrSimulateDraw } from "@/lib/draw";
@@ -6,7 +5,7 @@ import { drawSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const user = await currentUser();
-  if (!user || user.role !== UserRole.ADMIN) {
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

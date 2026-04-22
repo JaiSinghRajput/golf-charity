@@ -1,7 +1,16 @@
-import { PlanType, SubscriptionStatus } from "@prisma/client";
 import Stripe from "stripe";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+
+const PLAN_TYPES = ["MONTHLY", "YEARLY"] as const;
+type PlanType = (typeof PLAN_TYPES)[number];
+
+const SUBSCRIPTION_STATUS = {
+  ACTIVE: "ACTIVE",
+  CANCELED: "CANCELED",
+  PAST_DUE: "PAST_DUE",
+  INACTIVE: "INACTIVE"
+} as const;
 
 export const PLAN_PRICES: Record<PlanType, number> = {
   MONTHLY: 1500,
@@ -18,7 +27,7 @@ export const activeSubscription = async (userId: string) => {
   return prisma.subscription.findFirst({
     where: {
       userId,
-      status: SubscriptionStatus.ACTIVE
+      status: SUBSCRIPTION_STATUS.ACTIVE
     },
     orderBy: {
       createdAt: "desc"

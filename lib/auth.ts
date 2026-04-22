@@ -2,9 +2,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { compare, hash } from "bcryptjs";
 import { jwtVerify, SignJWT } from "jose";
-import { UserRole } from "@prisma/client";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
+
+type UserRole = "USER" | "ADMIN";
 
 const COOKIE_NAME = "golfpro_session";
 
@@ -84,7 +85,7 @@ export const requireUser = async () => {
 
 export const requireAdmin = async () => {
   const user = await currentUser();
-  if (!user || user.role !== UserRole.ADMIN) {
+  if (!user || user.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", env.APP_URL));
   }
   return user;

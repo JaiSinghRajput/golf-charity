@@ -1,10 +1,16 @@
-import { PlanType, SubscriptionStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { PLAN_PRICES, getStripe } from "@/lib/subscription";
 import { subscriptionSchema } from "@/lib/validation";
+
+type PlanType = "MONTHLY" | "YEARLY";
+
+const SUBSCRIPTION_STATUS = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE"
+} as const;
 
 export async function POST(request: Request) {
   const user = await currentUser();
@@ -25,7 +31,7 @@ export async function POST(request: Request) {
   const existingActive = await prisma.subscription.findFirst({
     where: {
       userId: user.id,
-      status: SubscriptionStatus.ACTIVE
+      status: SUBSCRIPTION_STATUS.ACTIVE
     }
   });
 
@@ -38,10 +44,10 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         plan,
-        status: SubscriptionStatus.ACTIVE,
+        status: SUBSCRIPTION_STATUS.ACTIVE,
         amountCents,
         currentPeriodEnd:
-          plan === PlanType.MONTHLY
+          plan === "MONTHLY"
             ? new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
             : new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
       }
@@ -82,7 +88,7 @@ export async function POST(request: Request) {
     customer: customer.id,
     line_items: [
       {
-        price: plan === PlanType.MONTHLY ? env.STRIPE_MONTHLY_PRICE_ID : env.STRIPE_YEARLY_PRICE_ID,
+        price: plan === "MONTHLY" ? env.STRIPE_MONTHLY_PRICE_ID : env.STRIPE_YEARLY_PRICE_ID,
         quantity: 1
       }
     ],
@@ -98,7 +104,7 @@ export async function POST(request: Request) {
     data: {
       userId: user.id,
       plan,
-      status: SubscriptionStatus.INACTIVE,
+      status: SUBSCRIPTION_STATUS.INACTIVE,
       amountCents,
       stripeCustomerId: customer.id
     }
