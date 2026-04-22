@@ -2,6 +2,12 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 
+type CharityEvent = {
+  name?: string;
+  date?: string;
+  location?: string;
+};
+
 export default async function CharityDetailPage({
   params
 }: {
@@ -14,7 +20,7 @@ export default async function CharityDetailPage({
     notFound();
   }
 
-  const events = Array.isArray(charity.events) ? charity.events : [];
+  const events = Array.isArray(charity.events) ? (charity.events as CharityEvent[]) : [];
 
   return (
     <section className="container-shell py-10">
@@ -36,7 +42,7 @@ export default async function CharityDetailPage({
             <ul className="mt-4 space-y-3 text-sm text-neutral-700">
               {events.length === 0 && <li>No upcoming events published yet.</li>}
               {events.map((event) => {
-                const item = event as { name?: string; date?: string; location?: string };
+                const item = event;
                 return (
                   <li key={`${item.name}-${item.date}`} className="rounded-lg bg-white p-3">
                     <p className="font-medium text-neutral-900">{item.name}</p>
